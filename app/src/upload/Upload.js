@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Dropzone from "../dropzone/Dropzone";
 import "./Upload.css";
 import Progress from "../progress/Progress";
+import firebase from "../firebase";
 
 class Upload extends Component {
   constructor(props) {
@@ -75,6 +76,24 @@ class Upload extends Component {
 
       req.open("POST", "http://localhost:8000/upload");
       req.send(formData);
+
+      console.log(file);
+
+      // var storageRef = firebase.storage().ref();
+
+      var putFile = file;
+
+      // var uploader = document.getElementById('uploader');
+      // var fileButton =         document.getElementById('fileButton');
+      // fileButton.addEventListener('change', function(e){
+      // var file = e.target.files[0];
+      var storageRef = firebase.storage().ref('csvs/'+file.name);
+      var task = storageRef.put(putFile);
+      task.on('state_changed', function progress(snapshot) {
+        console.log('uploaded');
+        console.log(snapshot);
+      });  
+
     });
   }
 
