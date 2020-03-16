@@ -77,22 +77,60 @@ class Upload extends Component {
       req.open("POST", "http://localhost:8000/upload");
       req.send(formData);
 
-      console.log(file);
+      //Trash
 
-      // var storageRef = firebase.storage().ref();
+      function csvJSON(csv){
+
+        var lines=csv.split("\n");
+      
+        var result = [];
+      
+        var headers=lines[0].split(",");
+      
+        for(var i=1;i<lines.length;i++){
+      
+          var obj = {};
+          var currentline=lines[i].split(",");
+      
+          for(var j=0;j<headers.length;j++){
+            obj[headers[j]] = currentline[j];
+          }
+      
+          result.push(obj);
+      
+        }
+        
+        return (result);
+      }
+
+      function writeUserData(json) {
+        firebase.database().ref('json/').set(json);
+      }
+
+      function readUserData() {
+        return (firebase.database().ref('json/').once('value'));
+      }
 
       var putFile = file;
 
-      // var uploader = document.getElementById('uploader');
-      // var fileButton =         document.getElementById('fileButton');
-      // fileButton.addEventListener('change', function(e){
-      // var file = e.target.files[0];
       var storageRef = firebase.storage().ref('csvs/'+file.name);
-      var task = storageRef.put(putFile);
-      task.on('state_changed', function progress(snapshot) {
-        console.log('uploaded');
-        console.log(snapshot);
-      });  
+      storageRef.put(putFile);
+
+
+      var storage = firebase.storage();
+      var storageRefDown = storage.ref('csvs/MANBIL03-logbook-2020-03-15.csv');
+      storageRefDown.getDownloadURL().then(function(url) {
+
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = 'blob';
+      xhr.onload = function(event) {
+        var blob = xhr.response;
+
+        blob.text().then(text => console.log(csvJSON(text)));
+      };
+      xhr.open('GET', url);
+      xhr.send();
+      })
 
     });
   }
