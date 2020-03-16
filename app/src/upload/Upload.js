@@ -103,14 +103,6 @@ class Upload extends Component {
         return (result);
       }
 
-      function writeUserData(json) {
-        firebase.database().ref('json/').set(json);
-      }
-
-      function readUserData() {
-        return (firebase.database().ref('json/').once('value'));
-      }
-
       var putFile = file;
 
       var storageRef = firebase.storage().ref('csvs/'+file.name);
